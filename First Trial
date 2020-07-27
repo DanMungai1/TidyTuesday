@@ -1,0 +1,122 @@
+# Loading Packages
+library(tidyverse)
+library(readr)
+library(GGally)
+library(ggridges)
+library(patchwork)
+## Data Loading
+penguins.csv <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-28/penguins.csv')
+df <- penguins.csv
+attach(df)
+### Correlation plot with ggpairs with species fill
+plt <- ggpairs(df, 3:6, mapping = ggplot2::aes(colour=species,fill=species),
+               title ="Correlation between each of bill length,
+               bill depth, flipper length & body mass in the different species of penguins")
+plt  
+## Remove the NAs in factor sex
+df2 <- df %>% filter(!sex == "NA")
+### plot correlation with ggpairs with sex as a variable fill
+plt1 <- ggpairs(df2, 3:6, mapping = ggplot2::aes(colour=sex,fill=sex),
+                title ="Correlation between each of bill length,
+               bill depth, flipper length & body mass in the different sexes of penguins")
+plt1
+### correlation plotting with ggpairs filling with the islands
+plt2 <- ggpairs(df2, 3:6, mapping = ggplot2::aes(colour= island,fill= island),
+                title ="Correlation between each of bill length,
+               bill depth, flipper length & body mass in the different islands of penguins")
+
+plt2
+### correlation matrix
+#### subset data that as no categorical variables
+df1 <- df %>% select(3:6)
+#### matrix plot
+plt3 <- ggcorr(df1, label = TRUE)
+plt3
+### group in years
+df1 <- df %>% group_by(species, year, island) %>% count()
+
+plt4 <- ggplot(df1, aes(year, n))+ geom_bar(stat= "identity",
+                      aes(fill= species), position = position_dodge())
+plt4
+plt5 <- ggplot(df1, aes(year, n))+ geom_bar(stat = "identity",
+                                 aes(fill= island), position = position_dodge())
+
+plt5
+plt6 <- ggplot(df1, aes(x = n, y = species)) + 
+  geom_density_ridges(aes(fill = species))
+plt6
+
+plt7 <- ggplot(df1, aes(x = n, y = island)) +
+  geom_density_ridges2(aes(color= island, fill = island))
+plt7
+###transform(years into numeric)
+year_num <- transform(df1, year_num = as.numeric(year))
+
+plt8 <- ggplot(year_num, aes(x = n, y = year_num, group = year_num)) + 
+  geom_density_ridges(aes(fill = factor(year)))
+plt8
+
+plt9 <- df %>%  
+  ggplot(aes(body_mass_g, species , fill = stat(x))) + 
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Species", option = "C") +
+  facet_wrap(~ island) +
+  labs(title = 'Body mass Distribution of the different species of Penguins')
+plt9
+plt01 <- df %>%  
+  ggplot(aes(body_mass_g, species , fill = stat(x))) + 
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Species", option = "C") +
+  labs(title = 'Body mass Distribution of the different species of Penguins')
+plt01
+plt02 <- df %>%  
+  ggplot(aes(flipper_length_mm, species , fill = stat(x))) + 
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Species", option = "C") +
+  labs(title = 'Flipper Length Distribution of the different species of Penguins')
+plt02
+plt03 <- df %>%  
+  ggplot(aes(bill_length_mm, species , fill = stat(x))) + 
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Species", option = "C") +
+  labs(title = 'bill Length Distribution of the different species of Penguins')
+plt03
+plt04 <- df %>%  
+  ggplot(aes(bill_depth_mm, species , fill = stat(x))) + 
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Species", option = "C") +
+  labs(title = 'bill depth Distribution of the different species of Penguins')
+plt04
+
+
+plt05 <- df %>%  
+  ggplot(aes(body_mass_g, island , fill = stat(x))) + 
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Species", option = "C") +
+  facet_wrap(~ island) +
+  labs(title = 'Body mass Distribution of the different species of Penguins')
+plt05
+plt06 <- df %>%  
+  ggplot(aes(body_mass_g, island , fill = stat(x))) + 
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Species", option = "C") +
+  labs(title = 'Body mass Distribution of the different species of Penguins')
+plt06
+plt07 <- df %>%  
+  ggplot(aes(flipper_length_mm, island , fill = stat(x))) + 
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Species", option = "C") +
+  labs(title = 'Flipper Length Distribution of the different species of Penguins')
+plt07
+plt08 <- df %>%  
+  ggplot(aes(bill_length_mm, island , fill = stat(x))) + 
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Species", option = "C") +
+  labs(title = 'bill Length Distribution of the different species of Penguins')
+plt08
+plt09 <- df %>%  
+  ggplot(aes(bill_depth_mm, island , fill = stat(x))) + 
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Species", option = "C") +
+  labs(title = 'bill depth Distribution of the different species of Penguins')
+plt09
