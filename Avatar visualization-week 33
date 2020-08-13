@@ -1,0 +1,126 @@
+library(tidyverse)
+library(tidytext)
+library(wordcloud2)
+library(tvthemes)
+
+
+#Load Data
+tuesdata <- tidytuesdayR::tt_load('2020-08-11')
+avatar <- tuesdata$avatar
+
+df1 <- avatar %>% group_by(chapter) %>% 
+  summarise(rating = mean(imdb_rating)) %>% 
+  arrange(desc(rating)) %>% top_n(10)
+ggplot(df1,aes(fct_reorder(chapter, rating), rating, fill = chapter))+ geom_col()+
+  coord_flip() +
+  theme(text = element_text(family = "Nunito Bold", face = "bold", size = 14),
+        axis.text = element_text(face = "bold"),
+        axis.ticks = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.major.x = element_line(color = "lightgrey"),
+        legend.position = 'none'
+       ) +
+  labs(x = "\Rating",
+       y = "") 
+ggplot(df1,aes(y = fct_reorder(chapter, rating), x= rating, fill = chapter))+ 
+  geom_col(fill = "#3686d3", width = .9) + 
+  theme_minimal()+ 
+  geom_vline(data = data.frame(x = seq(0, 9.7, 1.2)),
+             aes(xintercept = x), color = "white", size = 0.5) +
+  theme_fivethirtyeight()
+
+ggplot(df1, aes(x = rating, y = fct_reorder(chapter, rating))) +
+  geom_col(fill = "maroon", width = .9) +
+  geom_text(aes(y = fct_reorder(chapter, rating), x = rating, label = rating),
+            color = "white", hjust = 1, fontface = "bold", position = position_nudge(x = -.020)) +
+  theme_fivethirtyeight()
+
+ggplot(df1, aes(x = rating, y = fct_reorder(chapter, rating))) +
+  geom_col(fill = "maroon", width = .9) +
+  geom_text(aes(x = 0, y = fct_reorder(chapter, rating),  label = chapter),
+            color = "yellow", hjust = 0, position = position_nudge(y = 0.3),
+            fontface = "bold", family = "Nunito Bold", size = 4) +
+  geom_text(aes(x = rating, y = fct_reorder(chapter, rating), label = rating),
+            color = "green", hjust = 1, position = position_nudge(x = -.02, y = 0.3),
+            fontface = "bold", family = "Nunito Bold", size = 4)+
+  theme_fivethirtyeight() +
+  labs(y = "",
+       x = "") +
+  theme(text = element_text(family = "Nunito Bold", face = "bold", size = 14),
+        axis.text = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  scale_x_continuous(limits = c(0,10), expand = c(0, 0),
+                     breaks = scales::breaks_pretty(n = 10)) 
+
+ggplot(df1, aes(x = rating, y = fct_reorder(chapter, rating))) +
+  geom_col(fill = "maroon", width = .9)  +
+  geom_point(shape = 21, fill = "orange", color = "black", size = 10, stroke = 1) +
+  geom_text(aes(x = rating, y = fct_reorder(chapter, rating), label = rating),
+            color = "black", hjust = 0.5, 
+            fontface = "bold") +
+  theme_fivethirtyeight()
+
+ggplot(df1, aes(x = rating, y = fct_reorder(chapter, rating))) +
+  geom_col(fill = "maroon", width = .9)  +
+  geom_text(aes(x = 0, y = fct_reorder(chapter, rating),  label = chapter),
+            color = "yellow", hjust = 0, position = position_nudge(y = 0.3),
+            fontface = "bold", family = "Nunito Bold", size = 4)+
+  geom_point(shape = 21, fill = "orange", color = "black", size = 10, stroke = 1) +
+  geom_text(aes(x = rating, y = fct_reorder(chapter, rating), label = rating),
+            color = "black", hjust = 0.5, 
+            fontface = "bold") +
+  theme_fivethirtyeight()+
+  theme(axis.text = element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Top ten rating of Avatar Chapters", ylab = "Chapters",
+       xlab = "imdb Rating")
+df2 <- avatar %>% group_by(book, chapter) %>% 
+  summarise(rating = mean(imdb_rating))
+ggplot(filter(df2, book == "Earth"), aes(x = rating, y = fct_reorder(chapter, rating))) +
+  geom_col(fill = "maroon", width = .9)  +
+  geom_text(aes(x = 0, y = fct_reorder(chapter, rating),  label = chapter),
+            color = "yellow", hjust = 0, position = position_nudge(y = 0.3),
+            fontface = "bold", family = "Nunito Bold", size = 4)+
+  geom_point(shape = 21, fill = "orange", color = "black", size = 10, stroke = 1) +
+  geom_text(aes(x = rating, y = fct_reorder(chapter, rating), label = rating),
+            color = "black", hjust = 0.5, 
+            fontface = "bold") +
+  theme_fivethirtyeight()+
+  theme(axis.text = element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Top ten rating of Avatar Earth book Chapters", ylab = "Chapters",
+       xlab = "imdb Rating")
+
+
+ggplot(filter(df2, book == "Water"), aes(x = rating, y = fct_reorder(chapter, rating))) +
+  geom_col(fill = "maroon", width = .9)  +
+  geom_text(aes(x = 0, y = fct_reorder(chapter, rating),  label = chapter),
+            color = "yellow", hjust = 0, position = position_nudge(y = 0.3),
+            fontface = "bold", family = "Nunito Bold", size = 4)+
+  geom_point(shape = 21, fill = "orange", color = "black", size = 10, stroke = 1) +
+  geom_text(aes(x = rating, y = fct_reorder(chapter, rating), label = rating),
+            color = "black", hjust = 0.5, 
+            fontface = "bold") +
+  theme_fivethirtyeight()+
+  theme(axis.text = element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Top ten rating of Avatar Water book Chapters", ylab = "Chapters",
+       xlab = "imdb Rating")
+
+ggplot(filter(df2, book == "Fire"), aes(x = rating, y = fct_reorder(chapter, rating))) +
+  geom_col(fill = "maroon", width = .9)  +
+  geom_text(aes(x = 0, y = fct_reorder(chapter, rating),  label = chapter),
+            color = "yellow", hjust = 0, position = position_nudge(y = 0.3),
+            fontface = "bold", family = "Nunito Bold", size = 4)+
+  geom_point(shape = 21, fill = "orange", color = "black", size = 10, stroke = 1) +
+  geom_text(aes(x = rating, y = fct_reorder(chapter, rating), label = rating),
+            color = "black", hjust = 0.5, 
+            fontface = "bold") +
+  theme_fivethirtyeight()+
+  theme(axis.text = element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Top ten rating of Avatar Fire book Chapters", ylab = "Chapters",
+       xlab = "imdb Rating")
