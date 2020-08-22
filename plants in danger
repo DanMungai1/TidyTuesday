@@ -1,1 +1,34 @@
 
+###Load Packages
+library(tidyverse)
+library(ggthemes)
+###LOad data
+plants <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-18/plants.csv')
+actions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-18/actions.csv')
+threats <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-18/threats.csv')
+
+#### which continent has the highest extinctions
+cont_exticts <- plants %>% select(binomial_name, 
+                       continent,
+                       country,
+                       year_last_seen, 
+                       red_list_category) %>% 
+  filter(!red_list_category == "Extinct in the Wild",
+         !year_last_seen == "NA") %>% 
+  mutate(country= str_replace(country, "Saint Helena, Ascension and Tristan da Cunha", "Tristan"),
+         country = str_replace(country, "Sao Tome and Principe", "Sao Tome")) %>% 
+  group_by(continent, country) %>% count(red_list_category) %>% 
+  rename(extinct = n) %>% arrange(desc(extinct)) 
+  
+ggplot(cont_exticts, aes(reorder(country, extinct), extinct, fill = continent)) +
+  geom_col() + coord_flip() +
+  facet_wrap(~ continent, scales = "free") +
+  guides(fill = "none") + 
+  labs(title = "Extinctions in continents")+
+  theme_fivethirtyeight() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggsave("week34-plants.png")
+  
+
+
+  
