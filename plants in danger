@@ -29,6 +29,40 @@ ggplot(cont_exticts, aes(reorder(country, extinct), extinct, fill = continent)) 
   theme(plot.title = element_text(hjust = 0.5)) +
   ggsave("week34-plants.png")
   
+action_df <- actions %>% filter(action_taken > 0,
+                                !action_type == "Unknown") %>% 
+  group_by(continent) %>% 
+  count(action_type) %>% rename(action = "n") %>% 
+  arrange(desc(action))
+
+
+ggplot(action_df, aes(reorder(continent, action), action, fill = action_type)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ action_type, scales = "free") +
+  guides(fill = "none") + theme_fivethirtyeight()
+
+ggplot(action_df, aes(reorder(action_type, action), action, fill = action_type)) + 
+  geom_bar(stat = "identity", position = "dodge") + 
+  facet_wrap(~ continent, scales = "free") +
+  guides(fill = "none") + theme_fivethirtyeight()
+
+
+Actions <- action_df %>% filter(!action_type %in% c("Research & Monitoring", "Law & Policy", "Education & Awareness")) %>% 
+  pivot_wider(names_from = action_type, values_from = action)
+  
+
+ggpairs(select(Actions, - continent))
+
+ggcorr(select(Actions, - continent), label = TRUE)
+
+action_dtf <- actions %>% filter(action_taken > 0,
+                                !action_type == "Unknown") %>% 
+  group_by(group, continent) %>% 
+  summarise(n = sum(action_taken)) %>% rename(action = "n") %>% 
+  arrange(desc(action))
+
+ggplot(action_dtf, aes(group, action, fill = group))+ 
+  geom_boxplot()
 
 
   
